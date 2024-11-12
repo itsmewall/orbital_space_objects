@@ -15,6 +15,19 @@
     <label for="satelliteName">Nome do Satélite:</label>
     <input type="text" id="satelliteName" value="Satélite 1"><br>
 
+    <label for="satelliteDescription">Descrição:</label>
+    <textarea id="satelliteDescription" rows="3"></textarea><br>
+
+    <label for="modelType">Tipo de Modelo:</label>
+    <select id="modelType">
+      <option value="point">Ponto</option>
+      <option value="3dmodel">Modelo 3D</option>
+      <option value="image">Imagem PNG</option>
+    </select><br>
+
+    <label for="modelUpload">Upload do Modelo (GLTF ou PNG):</label>
+    <input type="file" id="modelUpload" accept=".gltf,.glb,.png"><br>
+
     <label for="semiMajorAxis">Semi-eixo maior (km):</label>
     <input type="number" id="semiMajorAxis" value="7000"><br>
 
@@ -30,9 +43,6 @@
     <label for="argPeriapsis">Argumento do Periapsis (graus):</label>
     <input type="number" id="argPeriapsis" value="0" step="0.1" min="0" max="360"><br>
 
-    <!-- Removemos o input de Anomalia Verdadeira -->
-
-    <!-- Inputs adicionais -->
     <label for="satelliteSpeed">Velocidade do Satélite (multiplicador):</label>
     <input type="number" id="satelliteSpeed" value="10" step="1" min="1"><br>
 
@@ -56,6 +66,11 @@
       <h3>Satélites Criados</h3>
       <ul id="satelliteItems"></ul>
     </div>
+
+    <!-- Botões para salvar e carregar satélites -->
+    <button id="saveSatellitesButton">Salvar Satélites</button>
+    <button id="loadSatellitesButton">Carregar Satélites</button>
+    <input type="file" id="loadFileInput" accept=".json" style="display: none;">
   </div>
 
   <script src="app.js"></script>
