@@ -12,6 +12,9 @@
   <div id="cesiumContainer"></div>
   <div id="controls">
     <h2>Parâmetros Orbitais</h2>
+    <label for="satelliteName">Nome do Satélite:</label>
+    <input type="text" id="satelliteName" value="Satélite 1"><br>
+
     <label for="semiMajorAxis">Semi-eixo maior (km):</label>
     <input type="number" id="semiMajorAxis" value="7000"><br>
 
@@ -27,10 +30,9 @@
     <label for="argPeriapsis">Argumento do Periapsis (graus):</label>
     <input type="number" id="argPeriapsis" value="0" step="0.1" min="0" max="360"><br>
 
-    <label for="trueAnomaly">Anomalia Verdadeira (graus):</label>
-    <input type="number" id="trueAnomaly" value="0" step="0.1" min="0" max="360"><br>
+    <!-- Removemos o input de Anomalia Verdadeira -->
 
-    <!-- Novos inputs para controlar a velocidade e coordenadas de lançamento -->
+    <!-- Inputs adicionais -->
     <label for="satelliteSpeed">Velocidade do Satélite (multiplicador):</label>
     <input type="number" id="satelliteSpeed" value="10" step="1" min="1"><br>
 
@@ -41,6 +43,19 @@
     <input type="number" id="launchLongitude" value="0" step="0.1" min="-180" max="180"><br>
 
     <button id="createOrbitButton">Criar Órbita</button>
+    <button id="toggleAnimationButton">Pausar Animação</button>
+
+    <!-- Área para exibir informações orbitais -->
+    <div id="orbitInfo">
+      <h3>Informações Orbitais</h3>
+      <p id="infoText">Nenhuma informação disponível.</p>
+    </div>
+
+    <!-- Lista de satélites criados -->
+    <div id="satelliteList">
+      <h3>Satélites Criados</h3>
+      <ul id="satelliteItems"></ul>
+    </div>
   </div>
 
   <script src="app.js"></script>
