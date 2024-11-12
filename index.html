@@ -3,55 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Simulador de Órbitas Espaciais</title>
-  <style>
-    /* Estilos embutidos */
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-    }
-
-    #cesiumContainer {
-      width: 100%;
-      height: 100vh;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    #controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background-color: rgba(255,255,255,0.8);
-      padding: 15px;
-      border-radius: 5px;
-      max-width: 250px;
-      z-index: 1;
-    }
-
-    #controls h2 {
-      margin-top: 0;
-    }
-
-    #controls label {
-      display: block;
-      margin-top: 10px;
-    }
-
-    #controls input {
-      width: 100%;
-      padding: 5px;
-      box-sizing: border-box;
-    }
-
-    #controls button {
-      margin-top: 15px;
-      width: 100%;
-      padding: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
   <!-- Incluindo o CesiumJS via CDN -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
@@ -78,166 +30,19 @@
     <label for="trueAnomaly">Anomalia Verdadeira (graus):</label>
     <input type="number" id="trueAnomaly" value="0" step="0.1" min="0" max="360"><br>
 
+    <!-- Novos inputs para controlar a velocidade e coordenadas de lançamento -->
+    <label for="satelliteSpeed">Velocidade do Satélite (multiplicador):</label>
+    <input type="number" id="satelliteSpeed" value="10" step="1" min="1"><br>
+
+    <label for="launchLatitude">Latitude de Lançamento (graus):</label>
+    <input type="number" id="launchLatitude" value="0" step="0.1" min="-90" max="90"><br>
+
+    <label for="launchLongitude">Longitude de Lançamento (graus):</label>
+    <input type="number" id="launchLongitude" value="0" step="0.1" min="-180" max="180"><br>
+
     <button id="createOrbitButton">Criar Órbita</button>
   </div>
 
-  <script>
-    // Inicializa o visualizador do Cesium
-    var viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: Cesium.createWorldTerrain(),
-      animation: false,
-      timeline: false,
-      // Desabilita a renderização de recursos que podem não carregar corretamente sem um servidor
-      baseLayerPicker: false,
-      geocoder: false,
-      homeButton: false,
-      sceneModePicker: false,
-      navigationHelpButton: false,
-      infoBox: false,
-      selectionIndicator: false,
-      fullscreenButton: false,
-    });
-
-    // Remover a camada de imagens padrão (Bing Maps) para evitar problemas de CORS
-    viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
-
-    // Adicionar uma camada de imagens via URL que funcione sem servidor
-    var imageryProvider = new Cesium.TileMapServiceImageryProvider({
-      url: Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'),
-    });
-    viewer.imageryLayers.addImageryProvider(imageryProvider);
-
-    // Ajusta a posição inicial da câmera
-    viewer.scene.camera.setView({
-      destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000),
-    });
-
-    // Função para criar a órbita
-    function createOrbit() {
-      // Remove entidades existentes
-      viewer.entities.removeAll();
-
-      // Obtém os valores dos inputs
-      var semiMajorAxis = parseFloat(document.getElementById('semiMajorAxis').value) * 1000; // km to meters
-      var eccentricity = parseFloat(document.getElementById('eccentricity').value);
-      var inclination = Cesium.Math.toRadians(parseFloat(document.getElementById('inclination').value));
-      var raan = Cesium.Math.toRadians(parseFloat(document.getElementById('raan').value));
-      var argPeriapsis = Cesium.Math.toRadians(parseFloat(document.getElementById('argPeriapsis').value));
-      var trueAnomaly = Cesium.Math.toRadians(parseFloat(document.getElementById('trueAnomaly').value));
-
-      // Validação dos valores
-      if (
-        isNaN(semiMajorAxis) ||
-        isNaN(eccentricity) ||
-        isNaN(inclination) ||
-        isNaN(raan) ||
-        isNaN(argPeriapsis) ||
-        isNaN(trueAnomaly)
-      ) {
-        alert('Por favor, insira valores numéricos válidos.');
-        return;
-      }
-
-      // Constante gravitacional padrão da Terra (m³/s²)
-      var mu = 3.986004418e14;
-
-      // Gera pontos ao longo da órbita
-      var positions = [];
-      var numberOfPoints = 360;
-
-      for (var i = 0; i <= numberOfPoints; i++) {
-        var theta = Cesium.Math.toRadians(i);
-        var r =
-          (semiMajorAxis * (1 - eccentricity * eccentricity)) /
-          (1 + eccentricity * Math.cos(theta));
-
-        // Coordenadas no plano orbital
-        var xOrbital = r * Math.cos(theta);
-        var yOrbital = r * Math.sin(theta);
-        var zOrbital = 0;
-
-        // Matriz de rotação total
-        var rotationMatrix = Cesium.Matrix3.multiply(
-          Cesium.Matrix3.multiply(
-            Cesium.Matrix3.fromRotationZ(raan),
-            Cesium.Matrix3.fromRotationX(inclination),
-            new Cesium.Matrix3()
-          ),
-          Cesium.Matrix3.fromRotationZ(argPeriapsis),
-          new Cesium.Matrix3()
-        );
-
-        // Aplica as rotações
-        var positionECI = Cesium.Matrix3.multiplyByVector(
-          rotationMatrix,
-          new Cesium.Cartesian3(xOrbital, yOrbital, zOrbital),
-          new Cesium.Cartesian3()
-        );
-
-        // Converte de ECI para ECEF (simplificação)
-        var gmst = 0; // Tempo sideral médio de Greenwich
-        var rotationEarth = Cesium.Matrix3.fromRotationZ(-gmst);
-        var positionECEF = Cesium.Matrix3.multiplyByVector(
-          rotationEarth,
-          positionECI,
-          new Cesium.Cartesian3()
-        );
-
-        positions.push(positionECEF);
-      }
-
-      // Adiciona a órbita ao visualizador
-      viewer.entities.add({
-        name: 'Órbita',
-        polyline: {
-          positions: positions,
-          width: 2,
-          material: Cesium.Color.BLUE,
-          arcType: Cesium.ArcType.NONE,
-        },
-      });
-
-      // Adiciona o satélite
-      var satellite = viewer.entities.add({
-        position: positions[0],
-        point: {
-          pixelSize: 10,
-          color: Cesium.Color.RED,
-        },
-      });
-
-      // Animação do satélite ao longo da órbita
-      var property = new Cesium.SampledPositionProperty();
-      var startTime = Cesium.JulianDate.now();
-      var orbitalPeriod = 2 * Math.PI * Math.sqrt(Math.pow(semiMajorAxis, 3) / mu);
-
-      for (var i = 0; i <= numberOfPoints; i++) {
-        var time = Cesium.JulianDate.addSeconds(
-          startTime,
-          (i / numberOfPoints) * orbitalPeriod,
-          new Cesium.JulianDate()
-        );
-        property.addSample(time, positions[i]);
-      }
-
-      satellite.position = property;
-
-      // Configura o relógio do visualizador
-      viewer.clock.startTime = startTime.clone();
-      viewer.clock.stopTime = Cesium.JulianDate.addSeconds(startTime, orbitalPeriod, new Cesium.JulianDate());
-      viewer.clock.currentTime = startTime.clone();
-      viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
-      viewer.clock.multiplier = 10;
-
-      // Centraliza a câmera na órbita
-      viewer.zoomTo(viewer.entities);
-    }
-
-    // Adiciona o listener ao botão
-    document.getElementById('createOrbitButton').addEventListener('click', createOrbit);
-
-    // Cria a órbita inicial ao carregar a página
-    createOrbit();
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
