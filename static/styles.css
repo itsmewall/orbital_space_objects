@@ -1,11 +1,53 @@
-/* static/styles.css */
-
+/* Estilos Globais */
 body {
   margin: 0;
-  overflow: hidden;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 }
 
+h1, h2, h3 {
+  margin: 10px 0;
+}
+
+/* Menu de Navegação */
+#menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100%;
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+#menu h1 {
+  font-size: 20px;
+  text-align: center;
+}
+
+#menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+#menu ul li {
+  margin-bottom: 15px;
+}
+
+#menu ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+#menu ul li a:hover {
+  text-decoration: underline;
+}
+
+/* Container do Cesium */
 #cesiumContainer {
   position: absolute;
   top: 0;
@@ -14,61 +56,70 @@ body {
   bottom: 0;
 }
 
+/* Painel de Controle */
 #controls {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 300px;
   width: 300px;
-  bottom: 0;
-  background-color: #f0f0f0;
-  padding: 10px;
+  background: #f7f7f7;
+  padding: 20px;
+  border-right: 1px solid #ddd;
   overflow-y: auto;
-}
-
-#controls h2, #controls h3 {
-  margin-top: 0;
 }
 
 #controls label {
   font-weight: bold;
+  display: block;
+  margin-top: 10px;
 }
 
-#controls input, #controls select, #controls button, #controls input[type="range"] {
+#controls input, #controls button, #controls input[type="range"] {
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  padding: 8px;
+  font-size: 14px;
 }
 
+button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* Estilos da Lista de Satélites */
 #satelliteList {
   margin-top: 20px;
 }
 
 #satelliteItems {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
 }
 
 #satelliteItems li {
+  background: #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
   cursor: pointer;
-  padding: 5px;
-  background-color: #ddd;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 #satelliteItems li:hover {
-  background-color: #ccc;
+  background: #ccc;
 }
 
-#satelliteItems button {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 5px;
-  cursor: pointer;
-}
-
-#satelliteItems button:hover {
-  background-color: #ff0000;
-}
+/* Estilo do Tooltip de Informação */
+.info {
+  font-weight: normal;
+  font-size: 12px;
+  cursor: help;
+  color: #007b

@@ -1,5 +1,3 @@
-<!-- templates/index.html -->
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,45 +9,73 @@
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Menu de navegação -->
+    <nav id="menu">
+        <h1>Simulador de Satélites</h1>
+        <ul>
+            <li><a href="/">Simulação de Órbitas</a></li>
+            <li><a href="/physics">Cálculo de Parâmetros Físicos</a></li>
+        </ul>
+    </nav>
+
     <div id="cesiumContainer"></div>
     <div id="controls">
         <h2>Parâmetros Orbitais</h2>
-        <label for="satelliteName">Nome do Satélite:</label>
+        <label for="satelliteName">
+            Nome do Satélite <span class="info" title="Defina um nome para identificar o satélite.">(i)</span>:
+        </label>
         <input type="text" id="satelliteName" value="Satélite 1"><br>
 
-        <label for="semiMajorAxis">Semi-eixo Maior (km):</label>
+        <label for="semiMajorAxis">
+            Semi-eixo Maior (km) <span class="info" title="Distância média do satélite ao centro da Terra.">(i)</span>:
+        </label>
         <input type="number" id="semiMajorAxis" value="7000"><br>
 
-        <label for="eccentricity">Excentricidade:</label>
+        <label for="eccentricity">
+            Excentricidade <span class="info" title="Define o formato da órbita (0 é circular).">(i)</span>:
+        </label>
         <input type="number" id="eccentricity" value="0.001" step="0.0001"><br>
 
-        <label for="inclination">Inclinação (graus):</label>
+        <label for="inclination">
+            Inclinação (graus) <span class="info" title="Ângulo da órbita em relação ao equador terrestre.">(i)</span>:
+        </label>
         <input type="number" id="inclination" value="45"><br>
 
-        <label for="raan">RAAN (graus):</label>
+        <label for="raan">
+            RAAN (graus) <span class="info" title="Longitude do Nó Ascendente, onde a órbita cruza o equador em direção norte.">(i)</span>:
+        </label>
         <input type="number" id="raan" value="0"><br>
 
-        <label for="argPeriapsis">Argumento do Perigeu (graus):</label>
+        <label for="argPeriapsis">
+            Argumento do Perigeu (graus) <span class="info" title="Ângulo que define a orientação do perigeu na órbita.">(i)</span>:
+        </label>
         <input type="number" id="argPeriapsis" value="0"><br>
 
-        <label for="meanAnomaly">Anomalia Média (graus):</label>
+        <label for="meanAnomaly">
+            Anomalia Média (graus) <span class="info" title="Posição inicial do satélite na órbita.">(i)</span>:
+        </label>
         <input type="number" id="meanAnomaly" value="0"><br>
 
         <h2>Local de Lançamento</h2>
-        <label for="launchLatitude">Latitude (graus):</label>
+        <label for="launchLatitude">
+            Latitude (graus) <span class="info" title="Latitude do ponto de lançamento do satélite.">(i)</span>:
+        </label>
         <input type="number" id="launchLatitude" value="0" step="0.0001"><br>
 
-        <label for="launchLongitude">Longitude (graus):</label>
+        <label for="launchLongitude">
+            Longitude (graus) <span class="info" title="Longitude do ponto de lançamento do satélite.">(i)</span>:
+        </label>
         <input type="number" id="launchLongitude" value="0" step="0.0001"><br>
 
         <h2>Configurações de Animação</h2>
-        <label for="animationSpeed">Velocidade da Animação:</label>
+        <label for="animationSpeed">
+            Velocidade da Animação <span class="info" title="Ajuste a velocidade de reprodução da simulação.">(i)</span>:
+        </label>
         <input type="range" id="animationSpeed" min="1" max="100" value="10"><br>
 
         <button id="createOrbitButton">Criar Órbita</button>
         <button id="toggleAnimationButton">Pausar Animação</button>
 
-        <!-- Lista de satélites criados -->
         <div id="satelliteList">
             <h3>Satélites Criados</h3>
             <ul id="satelliteItems"></ul>

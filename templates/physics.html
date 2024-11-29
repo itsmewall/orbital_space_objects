@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Parâmetros de Satélite</title>
+    <link rel="stylesheet" href="/static/physics.css">
+</head>
+<body>
+    <div id="container">
+        <h1>Parâmetros de Satélite</h1>
+        <form id="satelliteForm">
+            <label for="mass">Massa do Satélite (kg):</label>
+            <input type="number" id="mass" required><br>
+
+            <label for="altitude">Altitude Orbital (km):</label>
+            <input type="number" id="altitude" required><br>
+
+            <label for="eccentricity">Excentricidade (0-1):</label>
+            <input type="number" id="eccentricity" step="0.0001" required><br>
+
+            <label for="inclination">Inclinação (graus):</label>
+            <input type="number" id="inclination" required><br>
+
+            <button type="button" onclick="calculateParameters()">Calcular</button>
+        </form>
+
+        <div id="results">
+            <h2>Resultados</h2>
+            <p id="velocity"></p>
+            <p id="potentialEnergy"></p>
+            <p id="kineticEnergy"></p>
+            <p id="totalEnergy"></p>
+            <p id="period"></p>
+            <p id="apogee"></p>
+            <p id="perigee"></p>
+            <p id="stability"></p>
+        </div>
+
+        <div id="charts">
+            <h2>Gráficos</h2>
+            <canvas id="energyChart" width="600" height="400"></canvas>
+            <canvas id="orbitChart" width="600" height="400"></canvas>
+            <canvas id="groundTrackChart" width="600" height="400"></canvas>
+        </div>        
+        
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/physics.js"></script>
+</body>
+</html>
