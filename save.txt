@@ -1,0 +1,129 @@
+import numpy as np
+import json
+from math import pi, sin, cos, sqrt
+from scipy.optimize import newton
+
+# cte físicas
+MU = 3.986004418e14        # (m^3/s^2)
+J2 = 1.08263e-3            # coef. zonal de segundo grau da Terra
+EARTH_RADIUS = 6378.137e3  # Raio equatorial da Terra em m
+
+# function para resolver a Eq. de Kepler
+def solve_kepler(eccentric_anomaly, mean_anomaly, eccentricity):
+    return eccentric_anomaly - eccentricity * sin(eccentric_anomaly) - mean_anomaly
+
+# function para calcular as perturbações J2
+def calculate_j2_perturbations(semi_major_axis, eccentricity, inclination):
+    p = semi_major_axis * (1 - eccentricity**2)
+    factor = 1.5 * J2 * (EARTH_RADIUS**2) / (p**2)
+    raan_dot = -factor * cos(inclination)
+    arg_periapsis_dot = factor * (2 - 2.5 * sin(inclination)**2)
+    return raan_dot, arg_periapsis_dot
+
+# function principal para calcular a órbita
+def calculate_orbit(semi_major_axis, eccentricity, inclination, raan, arg_periapsis, mean_anomaly_at_epoch=0.0, num_points=1000):
+    period = 2 * pi * sqrt(semi_major_axis**3 / MU) # Período orbital
+    time_points = np.linspace(0, period, num_points) # Pontos de tempo igualmente espaçados
+    positions = []
+    raan_dot, arg_periapsis_dot = calculate_j2_perturbations(semi_major_axis, eccentricity, inclination) # taxa de variação
+
+    for time in time_points:
+        current_raan = raan + raan_dot * time
+        current_arg_periapsis = arg_periapsis + arg_periapsis_dot * time
+
+        mean_anomaly = mean_anomaly_at_epoch + (2 * pi * time) / period # anomalia média
+
+        eccentric_anomaly = newton(solve_kepler, mean_anomaly, args=(mean_anomaly, eccentricity)) # resolve a eq. de Kepler para anomalia excêntrica
+
+        # anomalia verdadeira
+        true_anomaly = 2 * np.arctan2(
+            sqrt(1 + eccentricity) * sin(eccentric_anomaly / 2),
+            sqrt(1 - eccentricity) * cos(eccentric_anomaly / 2)
+        )
+
+        r = semi_major_axis * (1 - eccentricity * cos(eccentric_anomaly)) # dist radial
+
+        # coord. no plano orbital
+        x_orbit = r * cos(true_anomaly)
+        y_orbit = r * sin(true_anomaly)
+        z_orbit = 0
+
+        # calculo de matrizes de rotação
+        cos_raan = cos(current_raan)
+        sin_raan = sin(current_raan)
+        cos_i = cos(inclination)
+        sin_i = sin(inclination)
+        cos_arg_periapsis = cos(current_arg_periapsis)
+        sin_arg_periapsis = sin(current_arg_periapsis)
+
+        # Matriz de rotação
+        rotation_matrix = np.array([
+            [cos_raan * cos_arg_periapsis - sin_raan * sin_arg_periapsis * cos_i,
+             -cos_raan * sin_arg_periapsis - sin_raan * cos_arg_periapsis * cos_i,
+             sin_raan * sin_i],
+            [sin_raan * cos_arg_periapsis + cos_raan * sin_arg_periapsis * cos_i,
+             -sin_raan * sin_arg_periapsis + cos_raan * cos_arg_periapsis * cos_i,
+             -cos_raan * sin_i],
+            [sin_arg_periapsis * sin_i,
+             cos_arg_periapsis * sin_i,
+             cos_i]
+        ])
+
+        position_orbit = np.array([x_orbit, y_orbit, z_orbit]) # vetor posição no plano orbital
+        position_eci = rotation_matrix.dot(position_orbit) # aplica a rotação
+
+        # add a posição ao array
+        positions.append({
+            "x": float(position_eci[0]),
+            "y": float(position_eci[1]),
+            "z": float(position_eci[2])
+        })
+
+    return positions
+
+# function para salvar os dados em JSON
+
+arquivo_nome = input("Insira o nome do arquivo a ser salvo: ")
+
+def save_orbit_json(positions, name, description, model_type, filename=f"{arquivo_nome}.json"):
+    data = {
+        "satellite": {
+            "name": name,
+            "description": description,
+            "orbitalParameters": {
+                "positions": positions
+            },
+            "modelType": model_type
+        }
+    }
+
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=2)
+    print(f"Dados do satélite salvos em '{filename}'.")
+
+# PARAMETROS ORBITAIS
+if __name__ == "__main__":
+    semi_major_axis = 7000e3  # metros
+    eccentricity = 0.001
+    inclination = np.radians(45.0)
+    raan = np.radians(0.0)
+    arg_periapsis = np.radians(0.0)
+    mean_anomaly_at_epoch = 0.0  # amomalia média no tempo inicial
+
+    # Nome e descrição
+    satellite_name = "Sat AEB Teste"
+    satellite_description = "Satélite de teste com perturbação J2."
+    model_type = "point"
+
+    # Calcula a órbita
+    positions = calculate_orbit(
+        semi_major_axis=semi_major_axis,
+        eccentricity=eccentricity,
+        inclination=inclination,
+        raan=raan,
+        arg_periapsis=arg_periapsis,
+        mean_anomaly_at_epoch=mean_anomaly_at_epoch
+    )
+
+    # Salva em JSON
+    save_orbit_json(positions, satellite_name, satellite_description, model_type)

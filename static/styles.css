@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+#cesiumContainer {
+  position: absolute;
+  top: 0;
+  left: 300px;
+  right: 0;
+  bottom: 0;
+}
+
+#controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300px;
+  bottom: 0;
+  background-color: #f0f0f0;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+#controls h2, #controls h3 {
+  margin-top: 0;
+}
+
+#controls label {
+  font-weight: bold;
+}
+
+#controls input, #controls textarea, #controls select, #controls button {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#satelliteList {
+  margin-top: 20px;
+}
+
+#satelliteItems {
+  list-style-type: none;
+  padding: 0;
+}
+
+#satelliteItems li {
+  cursor: pointer;
+  padding: 5px;
+  background-color: #ddd;
+  margin-bottom: 5px;
+}
+
+#satelliteItems li:hover {
+  background-color: #ccc;
+}
