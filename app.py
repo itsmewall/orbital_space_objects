@@ -107,6 +107,33 @@ def calculate_satellite_parameters():
     except Exception as e:
         print(f"Erro ao calcular parâmetros físicos: {e}")
         return jsonify({"error": str(e)}), 400
+@app.route("/calculate_orbit", methods=["POST"])
+def calculate_orbit():
+    try:
+        # Recebendo dados do frontend
+        data = request.json
+        semi_major_axis = float(data.get("semiMajorAxis", 0)) * 1000  # km -> m
+        eccentricity = float(data.get("eccentricity", 0))
+        inclination = float(data.get("inclination", 0))
+        raan = float(data.get("raan", 0))
+        arg_periapsis = float(data.get("argPeriapsis", 0))
+        mean_anomaly = float(data.get("meanAnomaly", 0))
+
+        # Cálculo de posições orbitais
+        num_points = 360
+        positions = []
+        for theta in np.linspace(0, 2 * pi, num_points):
+            r = (semi_major_axis * (1 - eccentricity**2)) / (1 + eccentricity * np.cos(theta))
+            x = r * np.cos(theta)
+            y = r * np.sin(theta)
+            z = 0  # Considerando plano orbital simples
+            positions.append({"x": x, "y": y, "z": z})
+
+        # Retornando os dados calculados
+        return jsonify({"positions": positions})
+    except Exception as e:
+        print(f"Erro ao calcular órbita: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/generate_energy_plot")
 def generate_energy_plot():
