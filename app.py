@@ -41,6 +41,7 @@ def calculate_orbit_endpoint():
         return jsonify({"positions": positions})
 
     except Exception as e:
+        print(f"Erro ao calcular a órbita: {e}")
         return jsonify({"error": str(e)}), 400
 
 if __name__ == '__main__':

@@ -1,3 +1,5 @@
+/* static/styles.css */
+
 body {
   margin: 0;
   overflow: hidden;
@@ -31,7 +33,7 @@ body {
   font-weight: bold;
 }
 
-#controls input, #controls textarea, #controls select, #controls button {
+#controls input, #controls select, #controls button, #controls input[type="range"] {
   width: 100%;
   margin-bottom: 10px;
 }
@@ -50,8 +52,23 @@ body {
   padding: 5px;
   background-color: #ddd;
   margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 #satelliteItems li:hover {
   background-color: #ccc;
+}
+
+#satelliteItems button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+#satelliteItems button:hover {
+  background-color: #ff0000;
 }

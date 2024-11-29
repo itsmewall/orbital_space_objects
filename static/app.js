@@ -1,7 +1,7 @@
 // static/app.js
 
 // Defina o seu token de acesso do Cesium Ion aqui
-Cesium.Ion.defaultAccessToken = '__pycache__ node_modules static static/app.js static/styles.css static/tle_data.json templates templates/index.html .gitignore app.py orbit_calculation.py package-lock.json package.json save.txt teste1.json token.tx';
+Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmFjZTE5OS00NmQ3LTQ1NDctYWQyMy04MzM0MDIwZDU0MWQiLCJpZCI6MTk3NDUzLCJpYXQiOjE3MDg3MDQ4NTd9.aRZXB2zE3zwVJn8C4cNQTwkvy8keyVMkpyTHqLa-0P8';
 
 // Variáveis globais
 var viewer;

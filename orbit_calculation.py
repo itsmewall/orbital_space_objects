@@ -1,8 +1,10 @@
 # orbit_calculation.py
 
 import numpy as np
-from math import pi, sin, cos, sqrt, atan2
-from scipy.optimize import newton
+from math import pi, sqrt
+
+# Importando funções matemáticas do numpy para suportar arrays
+from numpy import sin, cos, arctan2
 
 # Constantes físicas
 MU = 3.986004418e14        # Constante gravitacional da Terra (m^3/s^2)
@@ -22,7 +24,9 @@ def calculate_j2_perturbations(semi_major_axis, eccentricity, inclination):
     return raan_dot, arg_periapsis_dot
 
 # Função principal para calcular a órbita
-def calculate_orbit(semi_major_axis, eccentricity, inclination, raan, arg_periapsis, mean_anomaly_at_epoch=0.0, launch_latitude=0.0, launch_longitude=0.0, num_points=1000):
+def calculate_orbit(semi_major_axis, eccentricity, inclination, raan, arg_periapsis,
+                    mean_anomaly_at_epoch=0.0, launch_latitude=0.0, launch_longitude=0.0,
+                    num_points=1000):
     # Período orbital
     period = 2 * pi * sqrt(semi_major_axis**3 / MU)
     # Pontos de tempo igualmente espaçados
@@ -32,8 +36,7 @@ def calculate_orbit(semi_major_axis, eccentricity, inclination, raan, arg_periap
     # Calcula as taxas de variação devido ao J2
     raan_dot, arg_periapsis_dot = calculate_j2_perturbations(semi_major_axis, eccentricity, inclination)
 
-    # Ajuste da anomalia média inicial para que a posição inicial corresponda ao local de lançamento
-    # Isto é uma simplificação; para maior precisão, cálculos mais complexos são necessários
+    # Ajuste da anomalia média inicial para corresponder ao local de lançamento
     if launch_latitude != 0.0 or launch_longitude != 0.0:
         # Vetor posição inicial do local de lançamento em coordenadas ECEF
         r_earth = EARTH_RADIUS
@@ -42,16 +45,17 @@ def calculate_orbit(semi_major_axis, eccentricity, inclination, raan, arg_periap
         z_launch = r_earth * sin(launch_latitude)
         position_launch = np.array([x_launch, y_launch, z_launch])
 
-        # Transformar para o sistema de coordenadas orbitais
+        # Matriz de rotação para o sistema ECI
         rotation_matrix = get_rotation_matrix(raan, inclination, arg_periapsis)
+        # Transforma para o sistema de coordenadas orbitais
         position_orbital = np.linalg.inv(rotation_matrix).dot(position_launch)
 
         # Calcula a anomalia verdadeira inicial
-        true_anomaly_initial = atan2(position_orbital[1], position_orbital[0])
+        true_anomaly_initial = arctan2(position_orbital[1], position_orbital[0])
 
         # Converte para anomalia média inicial
-        E_initial = 2 * atan2(sqrt(1 - eccentricity) * sin(true_anomaly_initial / 2),
-                              sqrt(1 + eccentricity) * cos(true_anomaly_initial / 2))
+        E_initial = 2 * arctan2(sqrt(1 - eccentricity) * sin(true_anomaly_initial / 2),
+                                sqrt(1 + eccentricity) * cos(true_anomaly_initial / 2))
         mean_anomaly_at_epoch = E_initial - eccentricity * sin(E_initial)
 
     for time in time_points:
@@ -63,7 +67,7 @@ def calculate_orbit(semi_major_axis, eccentricity, inclination, raan, arg_periap
         mean_anomaly = mean_anomaly_at_epoch + (2 * pi * time) / period
 
         # Resolve a Equação de Kepler para anomalia excêntrica
-        eccentric_anomaly = newton(solve_kepler, mean_anomaly, args=(mean_anomaly, eccentricity))
+        eccentric_anomaly = newton_kepler(mean_anomaly, eccentricity)
 
         # Anomalia verdadeira
         true_anomaly = 2 * np.arctan2(
@@ -117,3 +121,15 @@ def get_rotation_matrix(raan, inclination, arg_periapsis):
          cos_i]
     ])
     return rotation_matrix
+
+def newton_kepler(M, e, tol=1e-8, max_iter=100):
+    """Resolução da Equação de Kepler usando o método de Newton-Raphson."""
+    E = M  # Estimativa inicial
+    for _ in range(max_iter):
+        f = E - e * sin(E) - M
+        f_prime = 1 - e * cos(E)
+        delta_E = -f / f_prime
+        E += delta_E
+        if abs(delta_E) < tol:
+            break
+    return E
