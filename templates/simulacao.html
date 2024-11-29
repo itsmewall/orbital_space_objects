@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Órbitas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Incluindo o CesiumJS via CDN -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.104/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo_aeb.png') }}" alt="Logo AEB">
+            <h1>Simulação de Órbitas</h1>
+        </div>
+    </header>
+
+    <!-- Menu de Navegação -->
+    <nav id="menu">
+        <ul>
+            <li><a href="{{ url_for('index') }}">Início</a></li>
+            <li><a href="{{ url_for('simulacao') }}">Simulação de Órbitas</a></li>
+            <li><a href="{{ url_for('physics') }}">Cálculo de Parâmetros Físicos</a></li>
+            <li><a href="{{ url_for('sobre') }}">Sobre</a></li>
+        </ul>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div id="simulacao-container">
+        <!-- Cesium Container -->
+        <div id="cesiumContainer"></div>
+
+        <!-- Painel de Controles -->
+        <div id="controls">
+            <h3>Parâmetros Orbitais</h3>
+            <label for="satelliteName">Nome do Satélite:</label>
+            <input type="text" id="satelliteName" value="Satélite 1"><br>
+
+            <label for="semiMajorAxis">Semi-eixo Maior (km):</label>
+            <input type="number" id="semiMajorAxis" value="7000"><br>
+
+            <label for="eccentricity">Excentricidade:</label>
+            <input type="number" id="eccentricity" value="0.001" step="0.0001"><br>
+
+            <label for="inclination">Inclinação (graus):</label>
+            <input type="number" id="inclination" value="45"><br>
+
+            <label for="raan">RAAN (graus):</label>
+            <input type="number" id="raan" value="0"><br>
+
+            <label for="argPeriapsis">Argumento do Perigeu (graus):</label>
+            <input type="number" id="argPeriapsis" value="0"><br>
+
+            <h3>Configurações de Animação</h3>
+            <label for="animationSpeed">Velocidade da Animação:</label>
+            <input type="range" id="animationSpeed" min="1" max="100" value="10"><br>
+
+            <button id="createOrbitButton">Criar Órbita</button>
+            <button id="toggleAnimationButton">Pausar Animação</button>
+
+            <!-- Lista de Satélites -->
+            <h3>Satélites Criados</h3>
+            <ul id="satelliteItems"></ul> <!-- Adicionado elemento necessário -->
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

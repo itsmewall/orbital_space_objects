@@ -1,71 +1,123 @@
 /* Estilos Globais */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+  background-color: #0d1b2a;
+  color: #e0e1dd;
+  overflow-x: hidden;
 }
 
 h1, h2, h3 {
   margin: 10px 0;
+  color: #fca311;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+a {
+  color: #fca311;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Cabeçalho */
+header {
+  background-color: #1b263b;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header .logo {
+  display: flex;
+  align-items: center;
+}
+
+header .logo img {
+  height: 50px;
+  margin-right: 15px;
+}
+
+header h1 {
+  font-size: 24px;
+  color: #e0e1dd;
 }
 
 /* Menu de Navegação */
 #menu {
-  position: fixed;
+  background-color: #14213d;
+  padding: 10px 20px;
+  position: sticky;
   top: 0;
-  left: 0;
-  width: 300px;
-  height: 100%;
-  background: #333;
-  color: #fff;
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-}
-
-#menu h1 {
-  font-size: 20px;
-  text-align: center;
+  z-index: 1000;
 }
 
 #menu ul {
   list-style: none;
+  display: flex;
+  justify-content: center;
   padding: 0;
-  margin: 20px 0;
+  margin: 0;
 }
 
 #menu ul li {
-  margin-bottom: 15px;
+  margin: 0 15px;
 }
 
 #menu ul li a {
-  color: #fff;
-  text-decoration: none;
   font-size: 16px;
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
 #menu ul li a:hover {
-  text-decoration: underline;
+  background-color: #fca311;
+  color: #0d1b2a;
 }
 
-/* Container do Cesium */
-#cesiumContainer {
-  position: absolute;
-  top: 0;
-  left: 300px;
-  right: 0;
-  bottom: 0;
-}
-
-/* Painel de Controle */
-#controls {
-  position: absolute;
-  top: 0;
-  left: 300px;
-  width: 300px;
-  background: #f7f7f7;
+/* Conteúdo Principal */
+main {
+  margin-top: 20px;
   padding: 20px;
-  border-right: 1px solid #ddd;
+}
+
+/* Simulação de Órbitas */
+#simulacao-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh; /* O container ocupa toda a tela */
+  margin: 0;
+  padding: 0;
+}
+
+#cesiumContainer {
+  flex: 1; /* Cesium ocupa o espaço principal */
+  height: 100%;
+  background-color: #000;
+}
+
+#controls {
+  width: 300px;
+  background-color: #1b263b;
+  color: #e0e1dd;
+  padding: 20px;
+  border-left: 1px solid #444;
   overflow-y: auto;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+/* Botões e Inputs no Controle */
+#controls h3 {
+  margin-bottom: 10px;
 }
 
 #controls label {
@@ -77,49 +129,75 @@ h1, h2, h3 {
 #controls input, #controls button, #controls input[type="range"] {
   width: 100%;
   margin-bottom: 15px;
-  padding: 8px;
+  padding: 10px;
   font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  background-color: #e0e1dd;
+  color: #0d1b2a;
+}
+
+#controls input::placeholder {
+  color: #888;
 }
 
 button {
-  background: #007bff;
-  color: #fff;
+  background: #fca311;
+  color: #0d1b2a;
   border: none;
   cursor: pointer;
   padding: 10px;
   font-size: 16px;
   border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background: #0056b3;
+  background: #e5a00d;
 }
 
-/* Estilos da Lista de Satélites */
-#satelliteList {
-  margin-top: 20px;
+/* Página Sobre */
+#sobre {
+  margin-top: 50px;
+  padding: 20px;
+  background-color: #1b263b;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-#satelliteItems {
-  list-style: none;
-  padding: 0;
+#sobre h2 {
+  margin-bottom: 20px;
 }
 
-#satelliteItems li {
-  background: #ddd;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  cursor: pointer;
+#sobre p {
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-#satelliteItems li:hover {
-  background: #ccc;
+/* Rodapé */
+footer {
+  display: none; /* Rodapé removido */
 }
 
-/* Estilo do Tooltip de Informação */
-.info {
-  font-weight: normal;
-  font-size: 12px;
-  cursor: help;
-  color: #007b
+/* Responsividade */
+@media screen and (max-width: 768px) {
+  #menu ul {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  #simulacao-container {
+      flex-direction: column;
+  }
+
+  #cesiumContainer {
+      height: 300px;
+      margin-bottom: 20px;
+  }
+
+  #controls {
+      margin-left: 0;
+      width: 100%;
+      max-height: none;
+  }
+}

@@ -8,10 +8,16 @@ var viewer;
 var satellites = [];
 var isAnimationPaused = false;
 
-// Função principal para inicializar o Cesium Viewer
-function initializeViewer() {
+
+// Verifica se os campos do formulário existem
+async function initializeViewer() {
+    if (viewer) {
+        console.warn('Viewer já inicializado.');
+        return;
+    }
+
     viewer = new Cesium.Viewer('cesiumContainer', {
-        terrainProvider: Cesium.createWorldTerrain(),
+        terrainProvider: await Cesium.createWorldTerrainAsync(), // Corrige depreciação
         animation: false,
         timeline: false,
         baseLayerPicker: false,
@@ -20,19 +26,19 @@ function initializeViewer() {
         sceneModePicker: false,
         navigationHelpButton: false,
         infoBox: false,
-        fullscreenButton: false
+        fullscreenButton: false,
     });
 
-    // Mantém a Terra centralizada
+    // Configuração inicial da câmera
     viewer.scene.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000),
     });
 
-    // Adiciona os listeners aos botões
+    // Adiciona listeners para os botões
     document.getElementById('createOrbitButton').addEventListener('click', createOrbit);
     document.getElementById('toggleAnimationButton').addEventListener('click', toggleAnimation);
 
-    // Adiciona listener para o controle de velocidade da animação
+    // Listener para controle de velocidade
     document.getElementById('animationSpeed').addEventListener('input', updateAnimationSpeed);
 
     // Define a velocidade inicial da animação
@@ -44,102 +50,106 @@ initializeViewer();
 
 // Função para criar a órbita
 function createOrbit() {
-    // Obtém os valores dos inputs
-    var satelliteName = document.getElementById('satelliteName').value || 'Satélite';
+    try {
+        // Obtém os valores dos inputs com verificações
+        var satelliteName = document.getElementById('satelliteName')?.value || 'Satélite';
 
-    var semiMajorAxis = parseFloat(document.getElementById('semiMajorAxis').value); // km
-    var eccentricity = parseFloat(document.getElementById('eccentricity').value);
-    var inclination = parseFloat(document.getElementById('inclination').value); // graus
-    var raan = parseFloat(document.getElementById('raan').value); // graus
-    var argPeriapsis = parseFloat(document.getElementById('argPeriapsis').value); // graus
-    var meanAnomaly = parseFloat(document.getElementById('meanAnomaly').value); // graus
+        var semiMajorAxis = parseFloat(document.getElementById('semiMajorAxis')?.value) || 7000; // Valor padrão: 7000 km
+        var eccentricity = parseFloat(document.getElementById('eccentricity')?.value) || 0.001;
+        var inclination = parseFloat(document.getElementById('inclination')?.value) || 45; // Padrão: 45 graus
+        var raan = parseFloat(document.getElementById('raan')?.value) || 0;
+        var argPeriapsis = parseFloat(document.getElementById('argPeriapsis')?.value) || 0;
+        var meanAnomaly = parseFloat(document.getElementById('meanAnomaly')?.value) || 0;
 
-    var launchLatitude = parseFloat(document.getElementById('launchLatitude').value);
-    var launchLongitude = parseFloat(document.getElementById('launchLongitude').value);
+        var launchLatitude = parseFloat(document.getElementById('launchLatitude')?.value) || 0;
+        var launchLongitude = parseFloat(document.getElementById('launchLongitude')?.value) || 0;
 
-    // Validação dos valores
-    if (!validateInputs(semiMajorAxis, eccentricity, inclination, raan, argPeriapsis, meanAnomaly, launchLatitude, launchLongitude)) {
-        return;
-    }
-
-    // Prepara os dados para enviar ao servidor
-    var data = {
-        semiMajorAxis: semiMajorAxis,
-        eccentricity: eccentricity,
-        inclination: inclination,
-        raan: raan,
-        argPeriapsis: argPeriapsis,
-        meanAnomaly: meanAnomaly,
-        launchLatitude: launchLatitude,
-        launchLongitude: launchLongitude
-    };
-
-    // Mostra um indicador de carregamento
-    showLoadingIndicator(true);
-
-    // Faz a requisição ao servidor Flask
-    fetch('/calculate_orbit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        showLoadingIndicator(false);
-        if (!response.ok) {
-            return response.json().then(errData => {
-                throw new Error(errData.error || 'Erro ao calcular a órbita.');
-            });
+        // Validação dos valores
+        if (!validateInputs(semiMajorAxis, eccentricity, inclination, raan, argPeriapsis, meanAnomaly, launchLatitude, launchLongitude)) {
+            return;
         }
-        return response.json();
-    })
-    .then(result => {
-        var positionsData = result.positions;
 
-        // Cria a propriedade de posição
-        var positionProperty = createPositionProperty(positionsData);
+        // Prepara os dados para enviar ao servidor
+        var data = {
+            semiMajorAxis: semiMajorAxis,
+            eccentricity: eccentricity,
+            inclination: inclination,
+            raan: raan,
+            argPeriapsis: argPeriapsis,
+            meanAnomaly: meanAnomaly,
+            launchLatitude: launchLatitude,
+            launchLongitude: launchLongitude,
+        };
 
-        // Define uma cor única para o satélite
-        var color = Cesium.Color.fromRandom({ alpha: 1.0 });
+        // Mostra um indicador de carregamento
+        showLoadingIndicator(true);
 
-        // Adiciona o satélite ao viewer
-        var satelliteEntity = viewer.entities.add({
-            id: satelliteName,
-            name: satelliteName,
-            position: positionProperty,
-            path: {
-                resolution: 60, // Define a resolução do caminho (em segundos)
-                material: color,
-                width: 2,
-                leadTime: 0,
-                trailTime: 86400, // Mostra a trilha de 1 dia
-            },
-            point: {
-                pixelSize: 8,
-                color: color,
-            },
-        });
+        // Faz a requisição ao servidor Flask
+        fetch('/calculate_orbit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        })
+            .then((response) => {
+                showLoadingIndicator(false);
+                if (!response.ok) {
+                    return response.json().then((errData) => {
+                        throw new Error(errData.error || 'Erro ao calcular a órbita.');
+                    });
+                }
+                return response.json();
+            })
+            .then((result) => {
+                var positionsData = result.positions;
 
-        // Armazena o satélite na lista global
-        satellites.push({
-            name: satelliteName,
-            entity: satelliteEntity,
-        });
+                // Cria a propriedade de posição
+                var positionProperty = createPositionProperty(positionsData);
 
-        // Atualiza a lista de satélites na interface
-        updateSatelliteList();
+                // Define uma cor única para o satélite
+                var color = Cesium.Color.fromRandom({ alpha: 1.0 });
 
-        // Configura o relógio do visualizador
-        viewer.clock.shouldAnimate = true;
+                // Adiciona o satélite ao viewer
+                var satelliteEntity = viewer.entities.add({
+                    id: satelliteName,
+                    name: satelliteName,
+                    position: positionProperty,
+                    path: {
+                        resolution: 60, // Define a resolução do caminho (em segundos)
+                        material: color,
+                        width: 2,
+                        leadTime: 0,
+                        trailTime: 86400, // Mostra a trilha de 1 dia
+                    },
+                    point: {
+                        pixelSize: 8,
+                        color: color,
+                    },
+                });
 
-        // Centraliza a visualização no satélite recém-adicionado
-        viewer.zoomTo(satelliteEntity);
+                // Armazena o satélite na lista global
+                satellites.push({
+                    name: satelliteName,
+                    entity: satelliteEntity,
+                });
 
-    })
-    .catch(error => {
-        showLoadingIndicator(false);
-        console.error('Erro ao calcular a órbita:', error);
-        alert('Ocorreu um erro ao calcular a órbita: ' + error.message);
-    });
+                // Atualiza a lista de satélites na interface
+                updateSatelliteList();
+
+                // Configura o relógio do visualizador
+                viewer.clock.shouldAnimate = true;
+
+                // Centraliza a visualização no satélite recém-adicionado
+                viewer.zoomTo(satelliteEntity);
+            })
+            .catch((error) => {
+                showLoadingIndicator(false);
+                console.error('Erro ao calcular a órbita:', error);
+                alert('Ocorreu um erro ao calcular a órbita: ' + error.message);
+            });
+    } catch (error) {
+        console.error('Erro ao criar a órbita:', error);
+        alert('Erro: ' + error.message);
+    }
 }
 
 // Função para criar a propriedade de posição a partir dos dados recebidos
