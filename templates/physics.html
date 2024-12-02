@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cálculo de Parâmetros Físicos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Parâmetros de Satélite</title>
+    <link rel="stylesheet" href="/static/physics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Cabeçalho -->
     <header>
         <div class="logo">
             <img src="{{ url_for('static', filename='logo_aeb.png') }}" alt="Logo AEB">
-            <h1>Cálculo de Parâmetros Físicos</h1>
+            <h1>Simulador de Órbitas Espaciais</h1>
         </div>
     </header>
 
@@ -24,42 +25,52 @@
             <li><a href="{{ url_for('sobre') }}">Sobre</a></li>
         </ul>
     </nav>
-
+    
     <!-- Conteúdo Principal -->
     <main>
-        <form id="satelliteForm">
-            <label for="mass">Massa do Satélite (kg):</label>
-            <input type="number" id="mass" required><br>
+        <div id="container">
+            <form id="satelliteForm">
+                <h2>Insira os Dados do Satélite</h2>
+                <label for="mass">Massa do Satélite (kg):</label>
+                <input type="number" id="mass" placeholder="Ex.: 500" required>
 
-            <label for="altitude">Altitude Orbital (km):</label>
-            <input type="number" id="altitude" required><br>
+                <label for="altitude">Altitude Orbital (km):</label>
+                <input type="number" id="altitude" placeholder="Ex.: 500" required>
 
-            <label for="eccentricityPhysics">Excentricidade:</label>
-            <input type="number" id="eccentricityPhysics" step="0.0001" required><br>
+                <label for="eccentricity">Excentricidade (0-1):</label>
+                <input type="number" id="eccentricity" step="0.0001" placeholder="Ex.: 0.01" required>
 
-            <label for="inclinationPhysics">Inclinação (graus):</label>
-            <input type="number" id="inclinationPhysics" required><br>
+                <label for="inclination">Inclinação (graus):</label>
+                <input type="number" id="inclination" placeholder="Ex.: 45" required>
 
-            <button type="button" onclick="calculateParameters()">Calcular</button>
-        </form>
+                <button type="button" onclick="calculateParameters()">Calcular</button>
+            </form>
 
-        <div id="results">
-            <h3>Resultados</h3>
-            <p id="velocity"></p>
-            <p id="potentialEnergy"></p>
-            <p id="kineticEnergy"></p>
-            <p id="totalEnergy"></p>
-            <p id="period"></p>
-            <p id="apogee"></p>
-            <p id="perigee"></p>
-            <p id="stability"></p>
+            <div id="results">
+                <h2>Resultados</h2>
+                <p id="velocity"></p>
+                <p id="potentialEnergy"></p>
+                <p id="kineticEnergy"></p>
+                <p id="totalEnergy"></p>
+                <p id="period"></p>
+                <p id="apogee"></p>
+                <p id="perigee"></p>
+                <p id="stability"></p>
+            </div>
+
+            <div id="charts">
+                <h2>Gráficos</h2>
+                <canvas id="energyChart"></canvas>
+                <canvas id="orbitChart"></canvas>
+                <canvas id="groundTrackChart"></canvas>
+            </div>
         </div>
     </main>
 
     <!-- Rodapé -->
     <footer>
-        <p>&copy; 2023 Agência Espacial Brasileira. Todos os direitos reservados.</p>
+        <p>&copy; 2024 Agência Espacial Brasileira. Todos os direitos reservados.</p>
     </footer>
-    <script src="{{ url_for('static', filename='physics.js') }}"></script>
+    <script src="/static/physics.js"></script>
 </body>
 </html>

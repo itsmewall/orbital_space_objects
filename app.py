@@ -64,6 +64,65 @@ def calculate_satellite_parameters():
         else:
             stability = "Estável"
 
+        # Cálculo dos dados para os gráficos
+        num_points = 360
+        angles = np.linspace(0, 2 * pi, num_points)
+
+        # Cálculo do raio em cada ângulo (anomalia verdadeira)
+        radii = semi_major_axis * (1 - eccentricity**2) / (1 + eccentricity * np.cos(angles))
+
+        # Velocidades em cada ponto
+        velocities = np.sqrt(MU * (2 / radii - 1 / semi_major_axis))
+
+        # Energias específicas em cada ponto
+        potential_energies = -MU / radii
+        kinetic_energies = velocities**2 / 2
+        total_energies = potential_energies + kinetic_energies
+
+        # Coordenadas para o gráfico de órbita
+        orbit_x = radii * np.cos(angles)
+        orbit_y = radii * np.sin(angles)
+
+        # Cálculo da ground track (latitude e longitude)
+        # Considerando a rotação da Terra
+        times = np.linspace(0, period, num_points)
+        mean_motion = sqrt(MU / semi_major_axis**3)  # Movimento médio
+        mean_anomalies = mean_motion * times  # Anomalias médias ao longo do tempo
+        true_anomalies = mean_anomalies  # Aproximação para órbitas circulares
+
+        # Posições no plano orbital
+        r = radii
+        x_orb = r * np.cos(true_anomalies)
+        y_orb = r * np.sin(true_anomalies)
+        z_orb = np.zeros_like(x_orb)
+
+        # Rotação para considerar a inclinação
+        inclination_rad = np.radians(inclination)
+        x_eq = x_orb
+        y_eq = y_orb * np.cos(inclination_rad)
+        z_eq = y_orb * np.sin(inclination_rad)
+
+        # Conversão para latitude e longitude geocêntricas
+        latitudes = np.degrees(np.arcsin(z_eq / r))
+        longitudes = np.degrees(np.arctan2(y_eq, x_eq))
+
+        # Ajuste das longitudes devido à rotação da Terra
+        omega_earth = 2 * pi / (23 * 3600 + 56 * 60 + 4)  # Taxa de rotação sideral da Terra
+        longitudes = (longitudes - np.degrees(omega_earth * times)) % 360
+        longitudes[longitudes > 180] -= 360  # Ajuste para o intervalo [-180, 180]
+
+        # Preparar os dados dos gráficos para envio ao frontend
+        graphs = {
+            "angles": angles.tolist(),
+            "potential_energies": potential_energies.tolist(),
+            "kinetic_energies": kinetic_energies.tolist(),
+            "total_energies": total_energies.tolist(),
+            "orbit_x": (orbit_x / 1000).tolist(),  # Converter para km
+            "orbit_y": (orbit_y / 1000).tolist(),  # Converter para km
+            "latitudes": latitudes.tolist(),
+            "longitudes": longitudes.tolist(),
+        }
+
         results = {
             "velocity": velocity,
             "potential_energy_specific": potential_energy_specific,
@@ -73,6 +132,7 @@ def calculate_satellite_parameters():
             "apogee": apogee / 1000,  # metros -> km
             "perigee": perigee / 1000,  # metros -> km
             "stability": stability,
+            "graphs": graphs,
         }
 
         return jsonify({"results": results})
@@ -80,7 +140,7 @@ def calculate_satellite_parameters():
     except Exception as e:
         print(f"Erro ao calcular parâmetros físicos: {e}")
         return jsonify({"error": str(e)}), 400
-
+    
 # Rota para cálculo de órbitas
 @app.route("/calculate_orbit", methods=["POST"])
 def calculate_orbit():
